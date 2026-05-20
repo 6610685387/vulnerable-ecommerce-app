@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ShopVuln</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00236f",
+                        secondary: "#505f76",
+                        background: "#f7f9fb",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#444651",
+                        "outline-variant": "#c5c5d3",
+                        error: "#ba1a1a",
+                        "error-container": "#ffdad6"
+                    },
+                    fontFamily: { sans: ["Inter", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-surface'); font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; font-size: 24px; vertical-align: middle; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+    <header class="bg-surface-container-lowest border-b border-outline-variant shadow-sm w-full sticky top-0 z-50">
+        <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">bug_report</span>
+                <a href="/" class="text-2xl font-bold text-primary tracking-tight">ShopVuln</a>
+            </div>
+            
+            <div class="flex items-center gap-4 text-primary">
+                {% if session.user %}
+                    <span class="font-medium text-sm text-secondary">Welcome, {{ session.user.username }}</span>
+                    <a href="/account/edit" class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">account_circle</span></a>
+                    <a href="/logout" class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">logout</span></a>
+                {% else %}
+                    <a href="/login" class="text-primary font-medium hover:underline text-sm">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-surface-container-high border-t border-outline-variant mt-auto w-full py-8 text-center">
+        <p class="text-sm text-on-surface-variant">© 2026 ShopVuln Corp. All rights reserved. (CN351 Project)</p>
+    </footer>
+</body>
+</html>
