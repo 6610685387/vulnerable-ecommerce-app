@@ -5,12 +5,16 @@ products_bp = Blueprint('products', __name__)
 
 @products_bp.route('/')
 def home():
+    if 'user' not in session:
+        return redirect(url_for('auth.login'))
     db = get_db()
     products = db.execute('SELECT * FROM products').fetchall()
-    return render_template('home.html', products=products)
+    return render_template('home.html', products=products, user=session['user'])
 
 @products_bp.route('/product/<int:product_id>')
 def product_detail(product_id):
+    if 'user' not in session:
+        return redirect(url_for('auth.login'))
     db = get_db()
     product = db.execute('SELECT * FROM products WHERE id = ?', (product_id,)).fetchone()
     reviews = db.execute('SELECT * FROM reviews WHERE product_id = ? ORDER BY id DESC', (product_id,)).fetchall()
@@ -18,7 +22,7 @@ def product_detail(product_id):
     if not product:
         return "Product not found", 404
         
-    return render_template('product_detail.html', product=product, reviews=reviews)
+    return render_template('product_detail.html', product=product, reviews=reviews, user=session['user'])
 
 @products_bp.route('/product/<int:product_id>/review', methods=['POST'])
 def add_review(product_id):

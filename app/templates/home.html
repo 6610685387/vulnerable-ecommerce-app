@@ -25,8 +25,12 @@
             <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ p.description }}</p>
             <div class="mt-auto">
                 <div class="text-xl font-bold text-primary mb-4">฿{{ "{:,.2f}".format(p.price) }}</div>
-                <a href="/product/{{ p.id }}" class="block w-full py-2 px-4 border border-outline-variant text-secondary text-center text-sm font-semibold rounded-lg hover:bg-surface-container-low transition-colors">
+                <a href="/product/{{ p.id }}" class="block w-full py-2 px-4 border border-outline-variant text-secondary text-center text-sm font-semibold rounded-lg hover:bg-surface-container-low transition-colors mb-2">
                     View Details
+                </a>
+                <!-- P4 จะสร้าง route /buy/<id> -->
+                <a href="/buy/{{ p.id }}" class="block w-full py-2 px-4 bg-primary text-white text-center text-sm font-semibold rounded-lg hover:opacity-90 transition-colors">
+                    Buy Now
                 </a>
             </div>
         </div>
