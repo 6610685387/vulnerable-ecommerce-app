@@ -34,9 +34,48 @@
       </button>
     </form>
 
-    <p class="text-xs text-center text-secondary mt-6">
-      Demo accounts: alice / alice123 &nbsp;|&nbsp; admin / admin999
-    </p>
+    <div class="mt-6 flex flex-col items-center gap-3 w-full">
+      <p class="text-[11px] font-semibold text-secondary uppercase tracking-widest">Available Demo Accounts</p>
+      
+      <div class="flex flex-col gap-2 w-full">
+        <div class="grid grid-cols-2 items-center bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm w-full">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-primary">person</span>
+            <span class="text-secondary text-xs">Username:</span>
+            <code class="font-bold text-primary">alice</code>
+          </div>
+          <div class="flex items-center gap-2 border-l border-outline-variant pl-3">
+            <span class="text-secondary text-xs">Password:</span>
+            <code class="font-bold text-primary">alice123</code>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 items-center bg-surface-container-low border border-outline-variant rounded-md px-3 py-2 text-sm w-full">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-primary">person</span>
+            <span class="text-secondary text-xs">Username:</span>
+            <code class="font-bold text-primary">bob</code>
+          </div>
+          <div class="flex items-center gap-2 border-l border-outline-variant pl-3">
+            <span class="text-secondary text-xs">Password:</span>
+            <code class="font-bold text-primary">bob456</code>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 items-center bg-error-container/10 border border-error/20 rounded-md px-3 py-2 text-sm w-full">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px] text-error">admin_panel_settings</span>
+            <span class="text-secondary text-xs">Username:</span>
+            <code class="font-bold text-error">admin</code>
+          </div>
+          <div class="flex items-center gap-2 border-l border-error/20 pl-3">
+            <span class="text-secondary text-xs">Password:</span>
+            <code class="font-bold text-error">admin999</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock %}
