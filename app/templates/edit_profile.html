@@ -38,6 +38,30 @@
     </form>
   </div>
 
+  <!-- Password change card (Also VULNERABLE) -->
+  <div class="bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-sm p-6 mb-6">
+    <div class="mb-4">
+      <h2 class="text-xl font-bold text-on-surface">Change Password</h2>
+      <p class="text-xs text-secondary">No current password required — purely for CSRF demo.</p>
+    </div>
+    
+    <form method="POST" action="/account/password" id="change-password-form">
+      <div class="mb-5">
+        <label class="block text-sm font-medium text-on-surface-variant mb-1">
+          New Password
+        </label>
+        <input type="password" name="password" id="input-password" required
+               class="w-full px-4 py-2 rounded-lg border border-outline-variant bg-surface-container-low
+                      text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary transition">
+      </div>
+
+      <button type="submit" id="btn-change-password"
+              class="w-full bg-error text-white font-semibold py-2.5 rounded-lg hover:opacity-90 transition">
+        Change Password
+      </button>
+    </form>
+  </div>
+
   <!-- Current info display -->
   <div class="bg-surface-container-low border border-outline-variant rounded-xl p-4 text-sm text-secondary">
     <p>Current email: <span class="font-medium text-on-surface">{{ user.email }}</span></p>

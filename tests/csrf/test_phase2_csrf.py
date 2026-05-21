@@ -33,3 +33,16 @@ def test_email_actually_changed(client):
     client.post('/account/edit', data={'email': 'new@test.com'})
     r = client.get('/account/edit')
     assert b'new@test.com' in r.data
+
+def test_change_password_vulnerability(client):
+    """POST /account/password โดยไม่ใช้ token และไม่ถามรหัสผ่านเดิม → ต้องสำเร็จ"""
+    login_as_alice(client)
+    # พยายามเปลี่ยนรหัสผ่านเป็น 'hacked123'
+    r = client.post('/account/password', data={'password': 'hacked123'})
+    assert r.status_code == 302
+    
+    # ตรวจสอบว่ารหัสผ่านถูกเปลี่ยนจริงโดยการลอง login ใหม่
+    client.get('/logout')
+    r = client.post('/login', data={'username': 'alice', 'password': 'hacked123'})
+    assert r.status_code == 302
+    # ถ้า redirect ไปที่ home แปลว่า login สำเร็จ
