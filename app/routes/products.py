@@ -40,3 +40,24 @@ def add_review(product_id):
     db.commit()
     
     return redirect(url_for('products.product_detail', product_id=product_id))
+
+
+@products_bp.route('/review/<int:review_id>/delete', methods=['POST'])
+def delete_review(review_id):
+    if 'user' not in session:
+        return redirect(url_for('auth.login'))
+
+    db = get_db()
+    review = db.execute('SELECT * FROM reviews WHERE id = ?', (review_id,)).fetchone()
+
+    if not review:
+        return "Review not found", 404
+
+    if review['user_id'] != session['user']['id']:
+        return "Unauthorized", 403
+
+    product_id = review['product_id']
+    db.execute('DELETE FROM reviews WHERE id = ?', (review_id,))
+    db.commit()
+
+    return redirect(url_for('products.product_detail', product_id=product_id))
