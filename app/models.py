@@ -34,7 +34,8 @@ def init_db():
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             name        TEXT NOT NULL,
             price       REAL NOT NULL CHECK (price >= 0),
-            description TEXT
+            description TEXT,
+            image_url   TEXT
         );
 
         CREATE TABLE IF NOT EXISTS orders (

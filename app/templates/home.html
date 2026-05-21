@@ -17,8 +17,16 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {% for p in products %}
     <article class="group bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1">
-        <div class="aspect-[4/3] bg-surface-container-low flex items-center justify-center p-6 text-secondary group-hover:text-primary transition-colors">
-            <span class="material-symbols-outlined text-6xl opacity-50">devices</span>
+        <a href="/product/{{ p.id }}">
+        <div class="aspect-[4/3] bg-surface-container-low overflow-hidden">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" alt="{{ p.name }}"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-secondary">
+                <span class="material-symbols-outlined text-6xl opacity-50">devices</span>
+            </div>
+            {% endif %}
         </div>
         <div class="p-6 flex flex-col flex-grow">
             <h3 class="text-lg font-semibold text-on-surface mb-2 line-clamp-1">{{ p.name }}</h3>
@@ -34,6 +42,7 @@
                 </a>
             </div>
         </div>
+    </a>
     </article>
     {% endfor %}
 </div>
