@@ -122,10 +122,15 @@ python3 -m http.server 4000
 ![ก่อนโจมตี](assets/images/result/xss/xss_normal.png)
 *รูปที่ 1: หน้าสินค้าก่อนที่จะมีการโพสต์ review อันตราย*
 
+**ระหว่างโจมตี — ผู้โจมตีโพสต์ malicious script ในช่อง review:**
+
+![ระหว่างโจมตี](assets/images/result/xss/xss_inject.png)
+*รูปที่ 2: ผู้โจมตีพิมพ์ script ใน Write a Review แล้วกด Submit*
+
 **หลังโจมตีสำเร็จ — cookie ถูกส่งมายัง attacker server:**
 
 ![หลังโจมตี](assets/images/result/xss/xss_hacked.png)
-*รูปที่ 2: terminal ของผู้โจมตีได้รับ session cookie ของเหยื่อ*
+*รูปที่ 3: terminal ของผู้โจมตีได้รับ session cookie ของเหยื่อ*
 
 ---
 
