@@ -10,7 +10,9 @@ def create_app():
         init_db()
 
     from .routes.products import products_bp
-    
     app.register_blueprint(products_bp)
+
+    from .routes.auth import auth_bp
+    app.register_blueprint(auth_bp)
 
     return app

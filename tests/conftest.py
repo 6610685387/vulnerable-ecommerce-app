@@ -15,13 +15,13 @@ def app_instance():
     original_db_path = app.models.DB_PATH
     app.models.DB_PATH = db_path
     
-    app = create_app()
-    app.config.update({
+    flask_app = create_app()
+    flask_app.config.update({
         'TESTING': True,
     })
 
     # เตรียม Schema และข้อมูลจำลองสำหรับ Test
-    with app.app_context():
+    with flask_app.app_context():
         app.models.init_db()
         db = app.models.get_db()
         db.executescript("""
@@ -35,7 +35,7 @@ def app_instance():
         """)
         db.commit()
 
-    yield app
+    yield flask_app
 
     # Cleanup: ลบไฟล์ temp database ทิ้งหลังรัน test เสร็จ
     os.close(db_fd)
