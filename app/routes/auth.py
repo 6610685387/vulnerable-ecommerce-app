@@ -12,14 +12,14 @@ def login():
 
     error = None
     if request.method == 'POST':
-        username = request.form.get('username', '').strip()
+        login_id = request.form.get('login_id', '').strip()
         password = request.form.get('password', '').strip()
         db = get_db()
 
-        # SECURE login — parameterized query (auth ไม่ใช่จุด SQLi)
+        # SECURE login — parameterized query
         user = db.execute(
-            'SELECT * FROM users WHERE username = ? AND password = ?',
-            (username, password)
+            'SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?',
+            (login_id, login_id, password)
         ).fetchone()
 
         if user:
@@ -31,7 +31,7 @@ def login():
             }
             return redirect(url_for('products.home'))
         else:
-            error = 'Invalid username or password'
+            error = 'Invalid username/email or password'
 
     return render_template('login.html', error=error)
 
