@@ -23,7 +23,12 @@ def login():
         ).fetchone()
 
         if user:
-            session['user'] = dict(user)   # เก็บ user เป็น dict ใน session
+            session['user'] = {
+                'id': user['id'],
+                'username': user['username'],
+                'email': user['email'],
+                'role': user['role']
+            }
             return redirect(url_for('products.home'))
         else:
             error = 'Invalid username or password'
