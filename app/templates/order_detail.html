@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="mb-6 flex items-center gap-3">
+        <a href="/my-orders" class="text-secondary hover:text-primary flex items-center gap-1 text-sm">
+            <span class="material-symbols-outlined text-base">arrow_back</span> Back to My Orders
+        </a>
+    </div>
+
+    {% if order %}
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+        <h2 class="text-xl font-bold text-on-surface mb-1">Order #{{ order['id'] }}</h2>
+        <p class="text-xs text-on-surface-variant mb-6">Order details</p>
+
+        <div class="space-y-3 text-sm">
+            <div class="flex justify-between py-2 border-b border-outline-variant">
+                <span class="text-on-surface-variant">Product</span>
+                <span class="font-semibold text-on-surface">{{ order['product_name'] }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-outline-variant">
+                <span class="text-on-surface-variant">Quantity</span>
+                <span class="font-semibold text-on-surface">{{ order['quantity'] }}</span>
+            </div>
+            <div class="flex justify-between py-2 border-b border-outline-variant">
+                <span class="text-on-surface-variant">Total Paid</span>
+                <span class="font-bold text-primary text-base">฿{{ "{:,.2f}".format(order['total']) }}</span>
+            </div>
+            <div class="flex justify-between py-2">
+                <span class="text-on-surface-variant">Owner (user_id)</span>
+                <!-- Show user_id -->
+                <span class="font-semibold text-on-surface">{{ order['user_id'] }} {{ order['username'] }}</span>
+            </div>
+        </div>
+
+        {% if order['user_id'] != session.user.id %}
+        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            ⚠️ This is not your order! (user_id={{ order['user_id'] }} ≠ you={{ session.user.id }})
+        </div>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 text-center">
+        <span class="material-symbols-outlined text-4xl text-secondary opacity-50">receipt_long</span>
+        <p class="mt-2 text-on-surface-variant">Order not found.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -20,5 +20,10 @@ def create_app():
     from .routes.account import account_bp
     app.register_blueprint(account_bp)
 
+    from .routes.orders import orders_bp
+    app.register_blueprint(orders_bp)
+
+    from .routes.shop import shop_bp
+    app.register_blueprint(shop_bp)
 
     return app
