@@ -21,35 +21,163 @@
 * **Template Engine:** Jinja2 + Tailwind CSS (CDN)
 * **Dependency Manager:** Poetry
 
-## วิธีติดตั้งและใช้งาน
+## วิธีติดตั้งและใช้งานโปรเจกต์
 
-### สิ่งที่ต้องมีเบื้องต้น
+### สิ่งที่ต้องมีก่อนเริ่ม
 
-* Python 3.12 ขึ้นไป
-* Poetry (`pip install poetry`)
+#### 1. ติดตั้ง Python
 
-### ขั้นตอนการติดตั้ง
+โปรเจกต์นี้ต้องใช้:
+
+- Python 3.12 ขึ้นไป
+
+ดาวน์โหลดได้จาก:
+
+https://www.python.org/downloads/
+
+ตรวจสอบเวอร์ชัน Python:
 
 ```bash
-# 1. Clone โปรเจกต์
+python --version
+```
+
+หรือบน Windows:
+
+```bash
+py --version
+```
+
+ตัวอย่าง:
+
+```bash
+Python 3.13.2
+```
+
+---
+
+#### 2. ติดตั้ง Poetry
+
+ติดตั้ง Poetry:
+
+```bash
+pip install poetry
+```
+
+ตรวจสอบเวอร์ชัน Poetry:
+
+```bash
+poetry --version
+```
+
+ตัวอย่าง:
+
+```bash
+Poetry (version 2.1.3)
+```
+
+---
+
+## ขั้นตอนการติดตั้งโปรเจกต์
+
+### 1. Clone โปรเจกต์
+
+```bash
 git clone <repo-url>
+```
+
+### 2. เข้าโฟลเดอร์โปรเจกต์
+
+```bash
 cd vulnerable-ecommerce-app
+```
 
-# 2. ติดตั้ง dependencies
+### 3. ติดตั้ง dependencies
+
+คำสั่งนี้จะสร้าง virtual environment และติดตั้ง package ทั้งหมดให้อัตโนมัติ
+
+```bash
 poetry install
+```
 
-# 3. เปิดใช้งาน virtual environment
+---
+
+## วิธีเปิดใช้งาน Virtual Environment
+
+### ตรวจสอบเวอร์ชัน Poetry ก่อน
+
+```bash
+poetry --version
+```
+
+---
+
+### กรณีใช้ Poetry เวอร์ชันใหม่ (2.x)
+
+#### 1. ขอคำสั่ง activate environment
+
+```bash
+poetry env activate
+```
+
+ระบบจะคืนคำสั่ง activate มาให้
+
+---
+
+#### 2. รันคำสั่ง activate ตามระบบปฏิบัติการ
+
+##### PowerShell (Windows)
+
+```powershell
+& ".venv\Scripts\Activate.ps1"
+```
+
+##### CMD (Windows)
+
+```cmd
+.venv\Scripts\activate.bat
+```
+
+##### macOS / Linux
+
+```bash
+source .venv/bin/activate
+```
+
+---
+
+### กรณีใช้ Poetry เวอร์ชันเก่า (1.x)
+
+สามารถใช้คำสั่งนี้ได้เลย:
+
+```bash
 poetry shell
+```
 
-# 4. สร้างข้อมูลตัวอย่าง (ผู้ใช้, สินค้า, คำสั่งซื้อ)
+---
+
+## วิธีรันโปรเจกต์
+
+### 1. สร้างข้อมูลตัวอย่าง
+
+```bash
 python seed.py
+```
 
-# 5. รันแอปพลิเคชัน
+### 2. รันแอปพลิเคชัน
+
+```bash
 python main.py
 ```
 
-หลังจากรันสำเร็จ แอปจะเปิดใช้งานที่
-**[http://localhost:5001](http://localhost:5001)** (ค่าเริ่มต้นใน `config.js`)
+---
+
+## การเข้าใช้งานแอปพลิเคชัน
+
+หลังจากรันสำเร็จ แอปจะเปิดใช้งานที่:
+
+**[http://localhost:5001](http://localhost:5001)**
+
+(ค่าเริ่มต้นใน `config.js`)
 
 ## บัญชีทดลองใช้งาน
 
