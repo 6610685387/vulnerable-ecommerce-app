@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ShopVuln</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script id="tailwind-config">
         tailwind.config = {
@@ -30,10 +32,20 @@
         }
     </script>
     <style>
-        body { background-color: theme('colors.background'); color: theme('colors.on-surface'); font-family: 'Inter', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; font-size: 24px; vertical-align: middle; }
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            font-family: 'Inter', sans-serif;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400;
+            font-size: 24px;
+            vertical-align: middle;
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col antialiased">
     <header class="bg-surface-container-lowest border-b border-outline-variant shadow-sm w-full sticky top-0 z-50">
         <div class="flex justify-between items-center px-8 py-4 max-w-7xl mx-auto w-full">
@@ -41,14 +53,33 @@
                 <span class="material-symbols-outlined text-primary">bug_report</span>
                 <a href="/" class="text-2xl font-bold text-primary tracking-tight">ShopVuln</a>
             </div>
-            
-            <div class="flex items-center gap-4 text-primary">
+
+            <div class="flex items-center gap-1 text-primary">
                 {% if session.user %}
-                    <span class="font-medium text-sm text-secondary">Welcome, {{ session.user.username }}</span>
-                    <a href="/account" class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">account_circle</span></a>
-                    <a href="/logout" class="p-2 hover:bg-surface-container-low rounded-full transition-colors"><span class="material-symbols-outlined">logout</span></a>
+                <span class="font-medium text-sm text-secondary mr-3">{{ session.user.username }}</span>
+
+                <!-- Admin badge + link -->
+                {% if session.user.role == 'admin' %}
+                <a href="/admin/orders" title="Admin Panel"
+                    class="p-2 hover:bg-red-50 rounded-full transition-colors text-red-600">
+                    <span class="material-symbols-outlined">admin_panel_settings</span>
+                </a>
+                {% endif %}
+
+                <a href="/account" title="Profile"
+                    class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+                    <span class="material-symbols-outlined">account_circle</span>
+                </a>
+                <a href="/my-orders" title="My Orders"
+                    class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+                    <span class="material-symbols-outlined">receipt_long</span>
+                </a>
+                <a href="/logout" title="Logout"
+                    class="p-2 hover:bg-surface-container-low rounded-full transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                </a>
                 {% else %}
-                    <a href="/login" class="text-primary font-medium hover:underline text-sm">Sign In</a>
+                <a href="/login" class="text-primary font-medium hover:underline text-sm">Sign In</a>
                 {% endif %}
             </div>
         </div>
@@ -62,4 +93,5 @@
         <p class="text-sm text-on-surface-variant">© 2026 ShopVuln Corp. All rights reserved. (CN351 Project)</p>
     </footer>
 </body>
+
 </html>

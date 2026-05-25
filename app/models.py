@@ -43,6 +43,8 @@ def init_db():
             user_id      INTEGER NOT NULL,
             product_name TEXT    NOT NULL,
             quantity     INTEGER NOT NULL CHECK (quantity > 0),
+            unit_price     REAL    NOT NULL DEFAULT 0,
+            original_price REAL    NOT NULL DEFAULT 0,
             total        REAL    NOT NULL CHECK (total >= 0),
             FOREIGN KEY (user_id) REFERENCES users(id)
         );

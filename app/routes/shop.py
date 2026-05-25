@@ -23,23 +23,32 @@ def buy(product_id):
         price = product["price"]
         """
 
-        # INSECURE on Purpose: Price is taken directly from a hidden form field → attacker can modify it via DevTools or Burp Suite (Client-Side Control Bypass)
+        # INSECURE on Purpose: Price is taken directly from a hidden form field
+        # → attacker can modify it via DevTools or Burp Suite (Client-Side Control Bypass)
         price = request.form.get("price", "0")
 
-        quantity = request.form.get("quantity", "1")
+        quantity_raw = request.form.get("quantity", "1").strip()
 
         try:
             price_float = float(price)
-            quantity_int = int(quantity)
         except (ValueError, TypeError):
             price_float = 0.0
+
+        try:
+            # float() ก่อนเพื่อรองรับ "1.0", "2.5" แล้วค่อย int()
+            quantity_int = int(float(quantity_raw))
+        except (ValueError, TypeError):
+            quantity_int = 1
+
+        if quantity_int < 1:
             quantity_int = 1
 
         total = price_float * quantity_int
+        original_price = product["price"]
 
         db.execute(
-            "INSERT INTO orders (user_id, product_name, quantity, total) VALUES (?, ?, ?, ?)",
-            (session["user"]["id"], product["name"], quantity_int, total),
+            "INSERT INTO orders (user_id, product_name, quantity, unit_price, original_price, total) VALUES (?, ?, ?, ?, ?, ?)",
+            (session["user"]["id"], product["name"], quantity_int, price_float, original_price, total),
         )
         db.commit()
 

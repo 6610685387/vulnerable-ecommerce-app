@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <div class="flex items-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-red-600">admin_panel_settings</span>
+            <h2 class="text-2xl font-bold text-on-surface">Admin — All Orders</h2>
+        </div>
+        <p class="text-sm text-on-surface-variant">ดู orders ทั้งหมดในระบบ · แสดง flag ถ้าราคาถูก manipulate</p>
+    </div>
+    <a href="/" class="text-sm text-secondary hover:text-primary flex items-center gap-1">
+        <span class="material-symbols-outlined text-base">arrow_back</span> Back to Shop
+    </a>
+</div>
+
+<!-- Orders table -->
+{% if orders %}
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-surface-container-low border-b border-outline-variant">
+            <tr>
+                <th class="text-left px-4 py-3 text-on-surface-variant font-semibold">#ID</th>
+                <th class="text-left px-4 py-3 text-on-surface-variant font-semibold">User</th>
+                <th class="text-left px-4 py-3 text-on-surface-variant font-semibold">Product</th>
+                <th class="text-right px-4 py-3 text-on-surface-variant font-semibold">Qty</th>
+                <th class="text-right px-4 py-3 text-on-surface-variant font-semibold">Listed Price</th>
+                <th class="text-right px-4 py-3 text-on-surface-variant font-semibold">Paid Price</th>
+                <th class="text-right px-4 py-3 text-on-surface-variant font-semibold">Total</th>
+                <th class="text-center px-4 py-3 text-on-surface-variant font-semibold">Status</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant">
+            {% for order in orders %}
+            {% set was_manipulated = order['unit_price'] < order['original_price'] %} <tr
+                class="{{ 'bg-red-50 hover:bg-red-100' if was_manipulated else 'hover:bg-surface-container-low' }} transition-colors">
+                <td class="px-4 py-3 font-mono text-on-surface-variant">{{ order['id'] }}</td>
+                <td class="px-4 py-3">
+                    <div class="font-medium text-on-surface">{{ order['username'] }}</div>
+                    <div class="text-xs text-on-surface-variant">uid: {{ order['user_id'] }}</div>
+                </td>
+                <td class="px-4 py-3 text-on-surface max-w-[180px] truncate">{{ order['product_name'] }}</td>
+                <td class="px-4 py-3 text-right text-on-surface">{{ order['quantity'] }}</td>
+                <td class="px-4 py-3 text-right text-on-surface-variant">
+                    ฿{{ "{:,.2f}".format(order['original_price']) }}
+                </td>
+                <td
+                    class="px-4 py-3 text-right font-semibold {{ 'text-red-600' if was_manipulated else 'text-on-surface' }}">
+                    ฿{{ "{:,.2f}".format(order['unit_price']) }}
+                    {% if was_manipulated %}
+                    <div class="text-xs font-normal text-red-500">
+                        -฿{{ "{:,.2f}".format(order['original_price'] - order['unit_price']) }}
+                    </div>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 text-right font-bold {{ 'text-red-600' if was_manipulated else 'text-primary' }}">
+                    ฿{{ "{:,.2f}".format(order['total']) }}
+                </td>
+                <td class="px-4 py-3 text-center">
+                    {% if was_manipulated %}
+                    <span
+                        class="inline-flex items-center gap-1 text-xs font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                        <span class="material-symbols-outlined text-[14px]">warning</span>
+                        Manipulated
+                    </span>
+                    {% else %}
+                    <span
+                        class="inline-flex items-center gap-1 text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        <span class="material-symbols-outlined text-[14px]">check</span>
+                        Normal
+                    </span>
+                    {% endif %}
+                </td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% else %}
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-10 text-center">
+    <span class="material-symbols-outlined text-5xl text-secondary opacity-40">receipt_long</span>
+    <p class="mt-3 text-on-surface-variant">No orders in the system yet.</p>
+    <p class="text-sm text-on-surface-variant mt-1">Tell users to buy something first!</p>
+</div>
+{% endif %}
+{% endblock %}

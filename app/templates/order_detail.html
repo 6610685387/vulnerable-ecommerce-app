@@ -1,46 +1,79 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="max-w-xl mx-auto">
-    <div class="mb-6 flex items-center gap-3">
+    <div class="mb-6">
         <a href="/my-orders" class="text-secondary hover:text-primary flex items-center gap-1 text-sm">
             <span class="material-symbols-outlined text-base">arrow_back</span> Back to My Orders
         </a>
     </div>
 
     {% if order %}
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
-        <h2 class="text-xl font-bold text-on-surface mb-1">Order #{{ order['id'] }}</h2>
-        <p class="text-xs text-on-surface-variant mb-6">Order details</p>
+    {% set is_others = order['user_id'] != session.user.id %}
 
-        <div class="space-y-3 text-sm">
-            <div class="flex justify-between py-2 border-b border-outline-variant">
+    <!-- IDOR warning banner -->
+    {% if is_others %}
+    <div class="mb-4 p-4 bg-red-600 text-white rounded-xl shadow flex items-start gap-3">
+        <span class="material-symbols-outlined text-2xl mt-0.5">warning</span>
+        <div>
+            <p class="font-bold text-base">IDOR — Accessing Someone Else's Order!</p>
+            <p class="text-sm opacity-90 mt-1">
+                Order นี้เป็นของ user_id <strong>{{ order['user_id'] }}</strong>
+                แต่คุณคือ user_id <strong>{{ session.user.id }}</strong>
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div
+        class="bg-surface-container-lowest rounded-xl border {{ 'border-red-300' if is_others else 'border-outline-variant' }} shadow-sm p-6">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-xl font-bold text-on-surface">Order #{{ order['id'] }}</h2>
+                <p class="text-xs text-on-surface-variant mt-0.5">Order details</p>
+            </div>
+            {% if is_others %}
+            <span class="text-xs font-bold bg-red-100 text-red-700 px-3 py-1 rounded-full">Not your order</span>
+            {% else %}
+            <span class="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full">Your order</span>
+            {% endif %}
+        </div>
+
+        <div class="space-y-0 text-sm divide-y divide-outline-variant">
+            <div class="flex justify-between py-3">
                 <span class="text-on-surface-variant">Product</span>
                 <span class="font-semibold text-on-surface">{{ order['product_name'] }}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-outline-variant">
+            <div class="flex justify-between py-3">
                 <span class="text-on-surface-variant">Quantity</span>
                 <span class="font-semibold text-on-surface">{{ order['quantity'] }}</span>
             </div>
-            <div class="flex justify-between py-2 border-b border-outline-variant">
-                <span class="text-on-surface-variant">Total Paid</span>
+            <div class="flex justify-between py-3">
+                <span class="text-on-surface-variant">Unit Price Paid</span>
+                {% set was_manipulated = order['unit_price'] < order['original_price'] %} <span
+                    class="font-semibold {{ 'text-red-600' if was_manipulated else 'text-on-surface' }}">
+                    ฿{{ "{:,.2f}".format(order['unit_price']) }}
+                    {% if was_manipulated %}
+                    <span class="text-xs">(manipulated from ฿{{ "{:,.2f}".format(order['original_price']) }})</span>
+                    {% endif %}
+                    </span>
+            </div>
+            <div class="flex justify-between py-3">
+                <span class="text-on-surface-variant">Total Charged</span>
                 <span class="font-bold text-primary text-base">฿{{ "{:,.2f}".format(order['total']) }}</span>
             </div>
-            <div class="flex justify-between py-2">
-                <span class="text-on-surface-variant">Owner (user_id)</span>
-                <!-- Show user_id -->
-                <span class="font-semibold text-on-surface">{{ order['user_id'] }} {{ order['username'] }}</span>
+            <!-- แสดง owner user_id เพื่อ demo IDOR -->
+            <div class="flex justify-between py-3">
+                <span class="text-on-surface-variant">Owner (user_id in DB)</span>
+                <span class="font-mono text-sm {{ 'text-red-600 font-bold' if is_others else 'text-on-surface' }}">
+                    {{ order['user_id'] }}
+                </span>
             </div>
         </div>
-
-        {% if order['user_id'] != session.user.id %}
-        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-            ⚠️ This is not your order! (user_id={{ order['user_id'] }} ≠ you={{ session.user.id }})
-        </div>
-        {% endif %}
     </div>
 
     {% else %}
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 text-center">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-8 text-center">
         <span class="material-symbols-outlined text-4xl text-secondary opacity-50">receipt_long</span>
         <p class="mt-2 text-on-surface-variant">Order not found.</p>
     </div>

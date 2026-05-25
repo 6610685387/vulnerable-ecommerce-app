@@ -1,41 +1,89 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="max-w-md mx-auto">
     <div class="mb-6">
-        <a href="/" class="text-secondary hover:text-primary flex items-center gap-1 text-sm">
-            <span class="material-symbols-outlined text-base">arrow_back</span> Back to Shop
+        <a href="/product/{{ product.id }}" class="text-secondary hover:text-primary flex items-center gap-1 text-sm">
+            <span class="material-symbols-outlined text-base">arrow_back</span> Back to Product
         </a>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
-        <h2 class="text-xl font-bold text-on-surface mb-1">🛒 Purchase</h2>
-        <p class="text-sm text-on-surface-variant mb-6">{{ product['name'] }}</p>
-
-        <div class="flex justify-between items-center py-3 border-b border-outline-variant mb-6">
-            <span class="text-on-surface-variant text-sm">Unit Price</span>
-            <span class="text-2xl font-bold text-primary">฿{{ "{:,.2f}".format(product['price']) }}</span>
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        <!-- Product summary -->
+        <div class="bg-surface-container-low px-6 py-4 border-b border-outline-variant flex items-center gap-4">
+            <span class="material-symbols-outlined text-3xl text-primary">inventory_2</span>
+            <div>
+                <p class="font-semibold text-on-surface">{{ product.name }}</p>
+                <p class="text-xs text-on-surface-variant">Confirm your order below</p>
+            </div>
         </div>
 
-        <form method="POST">
-            <!-- VULNERABLE: price is in a hidden field → can be modified in DevTools! -->
-            <input type="hidden" name="price" value="{{ product['price'] }}">
-
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-on-surface mb-2">Quantity</label>
-                <input type="number" name="quantity"
-                    class="w-full rounded-lg border border-outline-variant px-4 py-2 text-on-surface bg-surface-container-low focus:outline-none focus:ring-2 focus:ring-primary"
-                    value="1" min="1" max="99">
+        <div class="p-6">
+            <!-- Listed Price -->
+            <div class="flex justify-between items-center py-3 border-b border-outline-variant mb-6">
+                <span class="text-on-surface-variant text-sm">Listed Price</span>
+                <span class="text-2xl font-bold text-primary">฿{{ "{:,.2f}".format(product.price) }}</span>
             </div>
 
-            <button type="submit"
-                class="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity">
-                Confirm Purchase
-            </button>
-        </form>
+            <form method="POST" id="buy-form">
+                <input type="hidden" name="price" value="{{ product.price }}">
 
-        <p class="mt-4 text-xs text-on-surface-variant text-center">
-            💡 Hint: Try inspecting this page's hidden fields before submitting
-        </p>
+                <div class="mb-5">
+                    <label for="quantity" class="block text-sm font-medium text-on-surface mb-2">Quantity</label>
+                    <!-- Total preview -->
+                    <div id="total-preview" class="text-xs text-on-surface-variant mb-2">
+                        Total: <span id="total-val" class="font-semibold text-primary">฿{{
+                            "{:,.2f}".format(product.price) }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <!-- ปุ่ม − -->
+                        <button type="button" id="btn-minus"
+                            class="w-10 h-10 rounded-lg border border-outline-variant text-on-surface text-xl font-bold flex items-center justify-center hover:bg-surface-container-low active:scale-95 transition-all select-none">
+                            −
+                        </button>
+                        <input type="number" id="quantity" name="quantity"
+                            class="w-20 text-center rounded-lg border border-outline-variant px-3 py-2.5 text-on-surface font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-primary"
+                            value="1" min="1" max="99" required>
+                        <!-- ปุ่ม + -->
+                        <button type="button" id="btn-plus"
+                            class="w-10 h-10 rounded-lg border border-outline-variant text-on-surface text-xl font-bold flex items-center justify-center hover:bg-surface-container-low active:scale-95 transition-all select-none">
+                            +
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="w-full py-3 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">payment</span>
+                    Confirm Purchase
+                </button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    const qtyInput = document.getElementById('quantity');
+    const totalVal = document.getElementById('total-val');
+    const unitPrice = {{ product.price }};
+
+    function updateTotal() {
+        const qty = Math.max(1, parseInt(qtyInput.value) || 1);
+        qtyInput.value = qty;
+        totalVal.textContent = '฿' + (unitPrice * qty).toLocaleString('th-TH', { minimumFractionDigits: 2 });
+    }
+
+    document.getElementById('btn-minus').addEventListener('click', () => {
+        qtyInput.value = Math.max(1, (parseInt(qtyInput.value) || 1) - 1);
+        updateTotal();
+    });
+
+    document.getElementById('btn-plus').addEventListener('click', () => {
+        qtyInput.value = Math.min(99, (parseInt(qtyInput.value) || 1) + 1);
+        updateTotal();
+    });
+
+    qtyInput.addEventListener('input', updateTotal);
+    qtyInput.addEventListener('change', updateTotal);
+</script>
 {% endblock %}

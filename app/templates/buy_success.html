@@ -1,52 +1,74 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="max-w-md mx-auto">
-    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 text-center">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="material-symbols-outlined text-3xl text-green-600">check_circle</span>
-        </div>
-        <h2 class="text-xl font-bold text-on-surface mb-1">Order Placed!</h2>
-        <p class="text-sm text-on-surface-variant mb-6">Your purchase was recorded successfully.</p>
-
-        <div class="text-left space-y-2 text-sm border-t border-outline-variant pt-4">
-            <div class="flex justify-between py-1">
-                <span class="text-on-surface-variant">Product</span>
-                <span class="font-semibold text-on-surface">{{ product['name'] }}</span>
-            </div>
-            <div class="flex justify-between py-1">
-                <span class="text-on-surface-variant">Unit Price Paid</span>
-                <span class="font-semibold
-          {% if price < product['price'] * 0.5 %}text-red-600{% else %}text-on-surface{% endif %}">
-                    ฿{{ "{:,.2f}".format(price) }}
-                </span>
-            </div>
-            <div class="flex justify-between py-1">
-                <span class="text-on-surface-variant">Quantity</span>
-                <span class="font-semibold text-on-surface">{{ quantity }}</span>
-            </div>
-            <div class="flex justify-between py-2 border-t border-outline-variant">
-                <span class="font-bold text-on-surface">Total</span>
-                <span class="font-bold text-primary text-base">฿{{ "{:,.2f}".format(total) }}</span>
+    {% set was_manipulated = price < product['price'] %} {% if was_manipulated %} <!-- Banner แดงถ้าราคาถูก manipulate
+        -->
+        <div class="mb-4 p-4 bg-red-600 text-white rounded-xl shadow flex items-start gap-3">
+            <span class="material-symbols-outlined text-2xl mt-0.5">warning</span>
+            <div>
+                <p class="font-bold text-base">Client-Side Control Bypass Detected!</p>
+                <p class="text-sm opacity-90 mt-1">
+                    ราคาจริง ฿{{ "{:,.2f}".format(product['price']) }}
+                    แต่ถูกซื้อในราคา ฿{{ "{:,.2f}".format(price) }}
+                </p>
             </div>
         </div>
+        {% endif %}
 
-        {% if price < product['price'] * 0.5 %} <div
-            class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-left">
-            🚨 <strong>Client-Side Control Bypass!</strong><br>
-            Real price ฿{{ "{:,.2f}".format(product['price']) }} but bought at ฿{{ "{:,.2f}".format(price) }}
-    </div>
-    {% endif %}
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6">
+            <!-- Icon -->
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 {{ 'bg-red-100' if was_manipulated else 'bg-green-100' }} rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span
+                        class="material-symbols-outlined text-3xl {{ 'text-red-600' if was_manipulated else 'text-green-600' }}">
+                        {{ 'gpp_bad' if was_manipulated else 'check_circle' }}
+                    </span>
+                </div>
+                <h2 class="text-xl font-bold text-on-surface">Order Placed!</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Your purchase was recorded.</p>
+            </div>
 
-    <div class="mt-6 flex gap-3">
-        <a href="/my-orders"
-            class="flex-1 py-2 border border-outline-variant text-secondary text-sm font-semibold rounded-lg hover:bg-surface-container-low transition-colors text-center">
-            My Orders
-        </a>
-        <a href="/"
-            class="flex-1 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity text-center">
-            Continue Shopping
-        </a>
-    </div>
-</div>
+            <!-- Order summary -->
+            <div class="space-y-2 text-sm border-t border-outline-variant pt-4">
+                <div class="flex justify-between py-1.5">
+                    <span class="text-on-surface-variant">Product</span>
+                    <span class="font-semibold text-on-surface">{{ product['name'] }}</span>
+                </div>
+                <div class="flex justify-between py-1.5">
+                    <span class="text-on-surface-variant">Listed Price</span>
+                    <span class="text-on-surface">฿{{ "{:,.2f}".format(product['price']) }}</span>
+                </div>
+                <div class="flex justify-between py-1.5">
+                    <span class="text-on-surface-variant">Price Paid (per unit)</span>
+                    <span class="font-semibold {{ 'text-red-600' if was_manipulated else 'text-on-surface' }}">
+                        ฿{{ "{:,.2f}".format(price) }}
+                        {% if was_manipulated %}<span class="text-xs ml-1">(manipulated!)</span>{% endif %}
+                    </span>
+                </div>
+                <div class="flex justify-between py-1.5">
+                    <span class="text-on-surface-variant">Quantity</span>
+                    <span class="text-on-surface">{{ quantity }}</span>
+                </div>
+                <div class="flex justify-between py-2.5 border-t border-outline-variant mt-1">
+                    <span class="font-bold text-on-surface">Total Charged</span>
+                    <span class="font-bold text-primary text-base">฿{{ "{:,.2f}".format(total) }}</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex gap-3">
+                <a href="/my-orders"
+                    class="flex-1 py-2.5 border border-outline-variant text-secondary text-sm font-semibold rounded-lg hover:bg-surface-container-low transition-colors text-center flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                    My Orders
+                </a>
+                <a href="/"
+                    class="flex-1 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity text-center">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
 </div>
 {% endblock %}
